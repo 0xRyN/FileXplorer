@@ -1,6 +1,7 @@
 package org.xplorer.controller;
 
-import org.xplorer.interfaces.NavigationSelectionListener;
+import org.xplorer.interfaces.NavigationFileSelectionListener;
+import org.xplorer.interfaces.NavigationFolderSelectionListener;
 import org.xplorer.model.NavigationModel;
 import org.xplorer.view.NavigationView;
 
@@ -11,21 +12,27 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class NavigationController {
-    private NavigationModel model;
-    private NavigationView view;
+    private final NavigationModel model;
+    private final NavigationView view;
 
-    private final NavigationSelectionListener navigationSelectionListener;
+    private final NavigationFileSelectionListener navigationFileSelectionListener;
+    private final NavigationFolderSelectionListener navigationFolderSelectionListener;
 
-    public NavigationController(NavigationModel model, NavigationView view, NavigationSelectionListener navigationSelectionListener) {
+    public NavigationController(NavigationModel model, NavigationView view, NavigationFileSelectionListener navigationFileSelectionListener, NavigationFolderSelectionListener navigationFolderSelectionListener) {
         this.model = model;
         this.view = view;
-        this.navigationSelectionListener = navigationSelectionListener;
+        this.navigationFileSelectionListener = navigationFileSelectionListener;
+        this.navigationFolderSelectionListener = navigationFolderSelectionListener;
         initController();
         initializeView();
     }
 
     private void fireSelectionEventIfFileSelected(String path) {
-        navigationSelectionListener.onFileSelected(path);
+        navigationFileSelectionListener.onNavigationFileSelected(path);
+    }
+
+    private void fireSelectionEventIfFolderSelected(String path) {
+        navigationFolderSelectionListener.onFolderSelected(path);
     }
 
     private void addListEventListener(JList<String> list, int index) {
@@ -53,7 +60,8 @@ public class NavigationController {
                     return;
                 }
 
-
+                // File is a directory, open it and fire selection event
+                fireSelectionEventIfFolderSelected(path);
                 setCurrentPath(index, path);
             }
         });
@@ -61,9 +69,8 @@ public class NavigationController {
 
     private void initController() {
         for (int i = 0; i < view.fileLists.size(); i++) {
-            final int index = i;
             JList<String> list = view.getListAtIndex(i);
-            addListEventListener(list, index);
+            addListEventListener(list, i);
         }
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigurationModel {
-    private Configuration configuration;
+    private final Configuration configuration;
 
     public ConfigurationModel() {
         this.configuration = ConfigurationManager.loadConfiguration();

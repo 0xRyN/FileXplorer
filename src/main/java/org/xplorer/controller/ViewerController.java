@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class ViewerController {
-    private ViewerModel model;
-    private ViewerView view;
+    private final ViewerModel model;
+    private final ViewerView view;
 
     private File currentFile;
 

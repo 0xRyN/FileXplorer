@@ -17,8 +17,6 @@ public class ViewerModel {
     public void displayFile(File file) {
         if (viewer != null) {
             viewer.display(file);
-        } else {
-
         }
     }
 

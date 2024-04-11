@@ -1,5 +1,7 @@
 package org.xplorer.view;
 
+import org.xplorer.util.Consts;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -10,10 +12,12 @@ public class ViewerView extends JPanel {
     private JTextArea textArea, fileInfoTextArea;
     private JScrollPane textScrollPane;
     private JButton openFileButton;
-    private JPanel contentPanel, fileInfoPanel, buttonPanel;
+    private JPanel contentPanel;
+    private JPanel fileInfoPanel;
 
     public ViewerView() {
         initUI();
+        setPreferredSize(new Dimension(Consts.SCREEN_WIDTH / 8, getHeight()));
     }
 
     private void initUI() {
@@ -51,7 +55,7 @@ public class ViewerView extends JPanel {
         fileInfoTextArea.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 
-        buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel();
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         openFileButton = new JButton("Open File");
 
@@ -68,7 +72,7 @@ public class ViewerView extends JPanel {
 
     public void displayImage(ImageIcon image, String fileInfo) {
         contentPanel.removeAll();
-        Image scaledImage = scaleImageIcon(image, 200, 200);
+        Image scaledImage = scaleImageIcon(image);
         imageLabel.setIcon(new ImageIcon(scaledImage));
         contentPanel.add(imageLabel, BorderLayout.CENTER);
         setTitle("Image Viewer");
@@ -99,8 +103,8 @@ public class ViewerView extends JPanel {
         titleLabel.setText(title);
     }
 
-    private Image scaleImageIcon(ImageIcon icon, int maxWidth, int maxHeight) {
-        double scaleFactor = Math.min(1d, Math.min(maxWidth / (double) icon.getIconWidth(), maxHeight / (double) icon.getIconHeight()));
+    private Image scaleImageIcon(ImageIcon icon) {
+        double scaleFactor = Math.min(1d, Math.min(200 / (double) icon.getIconWidth(), 200 / (double) icon.getIconHeight()));
         int width = (int) (icon.getIconWidth() * scaleFactor);
         int height = (int) (icon.getIconHeight() * scaleFactor);
         return icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);

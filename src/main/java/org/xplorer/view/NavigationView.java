@@ -1,5 +1,7 @@
 package org.xplorer.view;
 
+import org.xplorer.util.Consts;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -36,14 +38,12 @@ public class NavigationView extends JPanel {
         listsPanel = new JPanel();
         listsPanel.setLayout(new BoxLayout(listsPanel, BoxLayout.X_AXIS));
         add(listsPanel, BorderLayout.CENTER);
-        initLists(LIST_COUNT);
+        initLists();
     }
 
     private void addDebuggingButton() {
         JButton button = new JButton("Debug");
-        button.addActionListener(e -> {
-            clearListsFromIndex(0);
-        });
+        button.addActionListener(e -> clearListsFromIndex(0));
         add(button, BorderLayout.SOUTH);
     }
 
@@ -53,8 +53,12 @@ public class NavigationView extends JPanel {
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         listModels.add(model);
         fileLists.add(list);
+
+        JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setPreferredSize(new Dimension(Consts.SCREEN_WIDTH / 10, scrollPane.getHeight()));
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JScrollPane(list));
+        panel.add(scrollPane);
+
         listsPanel.add(panel);
 
         // Refresh the view
@@ -64,7 +68,7 @@ public class NavigationView extends JPanel {
     }
 
     public void removeLastList() {
-        if (fileLists.size() > 0) {
+        if (!fileLists.isEmpty()) {
             fileLists.remove(fileLists.size() - 1);
             listModels.remove(listModels.size() - 1);
             listsPanel.remove(listsPanel.getComponentCount() - 1);
@@ -73,11 +77,11 @@ public class NavigationView extends JPanel {
         }
     }
 
-    private void initLists(int count) {
+    private void initLists() {
         listsPanel.removeAll();
         fileLists.clear();
         listModels.clear();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < NavigationView.LIST_COUNT; i++) {
             addNewList();
         }
     }

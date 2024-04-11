@@ -1,16 +1,19 @@
 package org.xplorer.view;
 
+import org.xplorer.util.Consts;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class FavoritesView extends JPanel {
-    private JList<String> favoritesList;
-    private DefaultListModel<String> listModel;
+    private final JList<String> favoritesList;
+    private final DefaultListModel<String> listModel;
 
     public FavoritesView() {
         setLayout(new BorderLayout());
         listModel = new DefaultListModel<>();
         favoritesList = new JList<>(listModel);
+        setPreferredSize(new Dimension(Consts.SCREEN_WIDTH / 8, getHeight()));
         add(new JScrollPane(favoritesList), BorderLayout.CENTER);
     }
 

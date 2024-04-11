@@ -5,7 +5,7 @@ import org.xplorer.view.ViewerView;
 import java.io.File;
 
 public class DefaultViewer implements FileViewer {
-    private ViewerView view;
+    private final ViewerView view;
 
     public DefaultViewer(ViewerView view) {
         this.view = view;

@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TextViewer implements FileViewer {
-    private ViewerView view;
+    private final ViewerView view;
 
     public TextViewer(ViewerView view) {
         this.view = view;

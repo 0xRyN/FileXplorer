@@ -8,7 +8,7 @@ import java.awt.*;
 import java.io.File;
 
 public class ImageViewer implements FileViewer {
-    private ViewerView view;
+    private final ViewerView view;
 
     public ImageViewer(ViewerView view) {
         this.view = view;

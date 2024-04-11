@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigurationController {
-    private ConfigurationModel model;
-    private ConfigurationView view;
+    private final ConfigurationModel model;
+    private final ConfigurationView view;
 
     public ConfigurationController(ConfigurationModel model, ConfigurationView view) {
         this.model = model;
@@ -80,13 +80,13 @@ public class ConfigurationController {
 
     private void removeAssociation() {
         Pair<String, ViewerType> selectedAssociation = view.getSelectedAssociation();
-        String extensionToRemove = selectedAssociation.first;
+        String extensionToRemove = selectedAssociation.first();
         if (extensionToRemove != null && !extensionToRemove.trim().isEmpty()) {
             Map<String, ViewerType> viewerMappings = model.getViewerMappings();
             if (viewerMappings.containsKey(extensionToRemove)) {
                 viewerMappings.remove(extensionToRemove);
                 model.setViewerMappings(viewerMappings);
-                view.removeAssociationFromList(selectedAssociation.first, selectedAssociation.second);
+                view.removeAssociationFromList(selectedAssociation.first(), selectedAssociation.second());
             } else {
                 view.showErrorMessage("Association not found.");
             }
