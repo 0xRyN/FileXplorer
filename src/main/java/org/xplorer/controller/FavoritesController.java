@@ -23,7 +23,7 @@ public class FavoritesController implements ConfigurationObserver {
 
     private void initController() {
         view.getFavoritesList().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting() && view.getFavoritesList().getSelectedValue() != null) {
                 String selectedPath = view.getFavoritesList().getSelectedValue();
                 selectionListener.onFavoriteSelected(selectedPath);
             }

@@ -30,6 +30,7 @@ public class ConfigurationManager {
 
     public static void notifyObservers() {
         for (ConfigurationObserver observer : observers) {
+            System.out.println("Notifying observer: " + observer);
             observer.onConfigurationChanged(configuration);
         }
     }

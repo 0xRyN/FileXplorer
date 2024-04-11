@@ -15,8 +15,11 @@ public class FavoritesView extends JPanel {
     }
 
     public void setFavoritesList(java.util.List<String> favorites) {
+        System.out.println(favorites);
         listModel.clear();
+        System.out.println("Favorites list cleared");
         for (String favorite : favorites) {
+            System.out.println("Adding favorite: " + favorite);
             listModel.addElement(favorite);
         }
     }
