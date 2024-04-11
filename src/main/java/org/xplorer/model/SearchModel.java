@@ -8,28 +8,27 @@ public class SearchModel {
     private String rootDir;
     private List<String> searchResults;
 
-    public void setSearchRegex(String searchRegex) {
-        this.searchRegex = searchRegex;
-    }
-
-    public void setRootDir(String rootDir) {
-        this.rootDir = rootDir;
-    }
-
     public List<String> getSearchResults() {
         return searchResults;
     }
 
+    public void setSearchResults(List<String> searchResults) {
+        this.searchResults = searchResults;
+    }
 
     public String getSearchRegex() {
         return searchRegex;
+    }
+
+    public void setSearchRegex(String searchRegex) {
+        this.searchRegex = searchRegex;
     }
 
     public String getRootDir() {
         return rootDir;
     }
 
-    public void setSearchResults(List<String> searchResults) {
-        this.searchResults = searchResults;
+    public void setRootDir(String rootDir) {
+        this.rootDir = rootDir;
     }
 }

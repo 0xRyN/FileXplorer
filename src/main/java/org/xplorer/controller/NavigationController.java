@@ -6,6 +6,7 @@ import org.xplorer.model.NavigationModel;
 import org.xplorer.view.NavigationView;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,5 +95,10 @@ public class NavigationController {
         if (!rootContents.isEmpty()) {
             view.setDirectoryContents(0, rootContents);
         }
+    }
+
+
+    public void addSearchButtonListener(ActionListener listener) {
+        view.addShowSearchListener(listener);
     }
 }

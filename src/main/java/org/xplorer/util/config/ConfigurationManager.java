@@ -14,9 +14,8 @@ import java.util.Map;
 
 public class ConfigurationManager {
     private static final String CONFIG_FILE_PATH = System.getProperty("user.home") + "/.explorer.conf";
-    private static Configuration configuration;
-
     private static final List<ConfigurationObserver> observers = new ArrayList<>();
+    private static Configuration configuration;
 
     public static void addObserver(ConfigurationObserver observer) {
         if (!observers.contains(observer)) {

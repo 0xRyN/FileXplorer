@@ -4,33 +4,45 @@ import org.xplorer.util.Consts;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class NavigationView extends JPanel {
+    private static final int LIST_COUNT = 3;
+    public List<JList<String>> fileLists;
     private JPanel listsPanel;
     private JTextField currentPathField;
-    public List<JList<String>> fileLists;
+    private JButton showSearch;
     private List<DefaultListModel<String>> listModels;
-
     private int currentDepth = 0;
-
-    private static final int LIST_COUNT = 3;
 
     public NavigationView() {
         setLayout(new BorderLayout());
         setBackground(Color.RED);
-        initializePathField();
+        initializeTopPanel();
         initializeListsPanel();
         // addDebuggingButton();
     }
 
-    private void initializePathField() {
+    private void initializeTopPanel() {
+
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+
         currentPathField = new JTextField();
         currentPathField.setEditable(false);
-        add(currentPathField, BorderLayout.NORTH);
+        topPanel.add(currentPathField);
+
+        topPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        showSearch = new JButton("Search");
+        topPanel.add(showSearch);
+
+        this.add(topPanel, BorderLayout.NORTH);
     }
+
 
     private void initializeListsPanel() {
         fileLists = new ArrayList<>();
@@ -123,5 +135,8 @@ public class NavigationView extends JPanel {
         currentDepth = depth;
     }
 
+    public void addShowSearchListener(ActionListener actionListener) {
+        showSearch.addActionListener(actionListener);
+    }
 
 }

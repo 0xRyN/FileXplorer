@@ -17,6 +17,10 @@ public class FavoritesView extends JPanel {
         add(new JScrollPane(favoritesList), BorderLayout.CENTER);
     }
 
+    public JList<String> getFavoritesList() {
+        return favoritesList;
+    }
+
     public void setFavoritesList(java.util.List<String> favorites) {
         System.out.println(favorites);
         listModel.clear();
@@ -25,9 +29,5 @@ public class FavoritesView extends JPanel {
             System.out.println("Adding favorite: " + favorite);
             listModel.addElement(favorite);
         }
-    }
-
-    public JList<String> getFavoritesList() {
-        return favoritesList;
     }
 }

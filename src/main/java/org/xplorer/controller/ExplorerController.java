@@ -13,6 +13,12 @@ public class ExplorerController implements FavoriteSelectionListener, Navigation
     private final ViewerController viewerController;
     private final SearchController searchController;
 
+    private void setOpenSearchListener(NavigationController navigationController, SearchView searchView) {
+        navigationController.addSearchButtonListener((e) -> {
+            searchView.setVisible(!searchView.isVisible());
+        });
+    }
+
     public ExplorerController() {
         ExplorerModel model = new ExplorerModel();
         NavigationModel navigationModel = new NavigationModel();
@@ -29,6 +35,7 @@ public class ExplorerController implements FavoriteSelectionListener, Navigation
 
         SearchModel searchModel = new SearchModel();
         SearchView searchView = new SearchView();
+        searchView.setVisible(false);
         this.searchController = new SearchController(searchModel, searchView, this);
 
         this.view = new ExplorerView();
@@ -36,6 +43,8 @@ public class ExplorerController implements FavoriteSelectionListener, Navigation
         this.view.addComponent(navigationView);
         this.view.addComponent(viewerView);
         this.view.addComponent(searchView);
+
+        setOpenSearchListener(navigationController, searchView);
     }
 
     @Override
