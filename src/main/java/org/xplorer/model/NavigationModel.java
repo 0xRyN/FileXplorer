@@ -35,7 +35,16 @@ public class NavigationModel {
         System.out.println("Renaming file: " + path + " to " + newPath);
         File file = new File(path);
         File newFile = new File(newPath);
-        return file.renameTo(newFile);
+        boolean success = file.renameTo(newFile);
+        if (!success) {
+            System.out.println("Failed to rename file");
+        }
+
+        currentDirectory = newFile;
+
+        System.out.println("New path: " + currentDirectory.getPath());
+
+        return success;
     }
 
     public boolean deleteFile(String path) {

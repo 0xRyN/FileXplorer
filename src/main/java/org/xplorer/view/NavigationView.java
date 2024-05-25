@@ -5,8 +5,6 @@ import org.xplorer.util.Consts;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +17,9 @@ public class NavigationView extends JPanel {
     private JButton showSearch;
     private List<DefaultListModel<String>> listModels;
     private int currentDepth = 0;
+    private int currentContextDepth = 0;
 
-    private JPopupMenu contextMenu;
+    public JPopupMenu contextMenu;
     private JMenuItem renameItem;
     private JMenuItem changePermissionsItem;
     private JMenuItem deleteItem;
@@ -110,37 +109,10 @@ public class NavigationView extends JPanel {
 
         listsPanel.add(panel);
 
-        // Add right-click listener to the list
-        addContextMenuToList(list);
-
         // Refresh the view
         revalidate();
         repaint();
         return list;
-    }
-
-    private void addContextMenuToList(JList<String> list) {
-        list.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showContextMenu(e);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showContextMenu(e);
-                }
-            }
-
-            private void showContextMenu(MouseEvent e) {
-                int index = list.locationToIndex(e.getPoint());
-                list.setSelectedIndex(index);
-                contextMenu.show(e.getComponent(), e.getX(), e.getY());
-            }
-        });
     }
 
     public void removeLastList() {
@@ -196,6 +168,14 @@ public class NavigationView extends JPanel {
 
     public void setCurrentDepth(int depth) {
         currentDepth = depth;
+    }
+
+    public int getCurrentContextDepth() {
+        return currentContextDepth;
+    }
+
+    public void setCurrentContextDepth(int depth) {
+        currentContextDepth = depth;
     }
 
     public void addShowSearchListener(ActionListener actionListener) {

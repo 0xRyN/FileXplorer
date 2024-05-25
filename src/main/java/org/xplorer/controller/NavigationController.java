@@ -7,6 +7,8 @@ import org.xplorer.view.NavigationView;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,25 +39,29 @@ public class NavigationController {
         navigationFolderSelectionListener.onFolderSelected(path);
     }
 
+    private String getCurrentlySelectedPath(JList<String> list, int index) {
+        String selectedValue = list.getSelectedValue();
+        String path = model.getCurrentPath();
+        int currentDepth = view.getCurrentDepth();
+
+        if (currentDepth == index) {
+            path = path + File.separator + selectedValue;
+        } else if (currentDepth > index) {
+            Path p = Paths.get(path);
+            for (int j = index; j < currentDepth; j++) {
+                p = p.getParent();
+            }
+            path = Paths.get(p.toString(), selectedValue).toString();
+        }
+
+        return path;
+    }
+
     private void addListEventListener(JList<String> list, int index) {
         list.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && !list.isSelectionEmpty()) {
-                String selectedValue = list.getSelectedValue();
-                String path = model.getCurrentPath();
-                int currentDepth = view.getCurrentDepth();
-
-                if (currentDepth == index) {
-                    path = path + File.separator + selectedValue;
-                } else if (currentDepth > index) {
-                    Path p = Paths.get(path);
-                    for (int j = index; j < currentDepth; j++) {
-                        p = p.getParent();
-                    }
-                    path = Paths.get(p.toString(), selectedValue).toString();
-                }
-
+                String path = getCurrentlySelectedPath(list, index);
                 File file = new File(path);
-
                 // File is not a directory, don't open it and fire selection event
                 if (!file.isDirectory()) {
                     fireSelectionEventIfFileSelected(path);
@@ -69,6 +75,32 @@ public class NavigationController {
         });
     }
 
+    private void addContextMenuListener(JList<String> list, int index) {
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                }
+            }
+
+            private void showContextMenu(MouseEvent e) {
+                view.setCurrentContextDepth(index);
+                int index = list.locationToIndex(e.getPoint());
+                list.setSelectedIndex(index);
+                view.contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+
+    }
+
     private void initializeContextMenuListeners() {
         view.setRenameActionListener(e -> handleRenameAction());
         view.setChangePermissionsActionListener(e -> handleChangePermissionsAction());
@@ -77,18 +109,25 @@ public class NavigationController {
 
     private void handleRenameAction() {
         JList<String> list = getSelectedList();
+
         if (list == null || list.isSelectionEmpty()) return;
 
-        String path = model.getCurrentPath();
-        String oldName = list.getSelectedValue();
-        String newName = view.showInputDialog("Entrez le nouveau nom:", oldName);
+        String oldPath = getCurrentlySelectedPath(list, view.getCurrentContextDepth());
+        String newPath;
+        String input;
+        File file = new File(oldPath);
 
-        String oldPath = Paths.get(path, oldName).toString();
-        String newPath = Paths.get(path, newName).toString();
-        if (newName != null && !newName.trim().isEmpty()) {
-            model.renameFile(oldPath, newPath);
-            refreshView();
+        if (file.isDirectory()) {
+            input = view.showInputDialog("Entrez le nouveau nom du dossier:", file.getName());
+        } else {
+            input = view.showInputDialog("Entrez le nouveau nom du fichier:", file.getName());
         }
+
+        newPath = Paths.get(file.getParent(), input).toString();
+
+        model.renameFile(oldPath, newPath);
+        refreshView();
+
     }
 
     private void handleChangePermissionsAction() {
@@ -96,47 +135,58 @@ public class NavigationController {
         if (list == null || list.isSelectionEmpty()) return;
 
         String fileName = list.getSelectedValue();
-        String permissions = view.showInputDialog("Entrez les permissions a ajouter (exemple -w-):", "");
-        if (permissions != null && !permissions.trim().isEmpty()) {
-            model.changePermissions(fileName, permissions);
-            refreshView();
+        String path = getCurrentlySelectedPath(list, view.getCurrentContextDepth());
+        File file = new File(path);
+        if (file.isDirectory()) {
+            System.out.println("Cannot change permissions of a directory");
+            return;
         }
+
+        String newPermissions = view.showInputDialog("Nouvelles permissions exemples: (r-x), (r--), (--x)" + fileName, "rwx");
+        model.changePermissions(path, newPermissions);
     }
 
     private void handleDeleteAction() {
         JList<String> list = getSelectedList();
         if (list == null || list.isSelectionEmpty()) return;
 
-        String fileName = list.getSelectedValue();
-        int confirm = view.showConfirmDialog("Voulez vous vraiment supprimer " + fileName + "?");
-        if (confirm == JOptionPane.YES_OPTION) {
-            model.deleteFile(fileName);
-            refreshView();
-        }
+        boolean confirm = view.showConfirmDialog("Voulez-vous vraiment supprimer ce fichier/dossier?") == JOptionPane.YES_OPTION;
+        if (!confirm) return;
+
+        String path = getCurrentlySelectedPath(list, view.getCurrentContextDepth());
+        model.deleteFile(path);
+        refreshView();
     }
 
     private JList<String> getSelectedList() {
-        for (int i = view.fileLists.size() - 1; i >= 0; i--) {
-            JList<String> list = view.getListAtIndex(i);
-            if (list != null && !list.isSelectionEmpty()) {
-                return list;
-            }
-        }
-        return null;
+        int depth = view.getCurrentContextDepth();
+        if (depth < 0) return null;
+        return view.getListAtIndex(depth);
     }
 
     private void refreshView() {
         String currentPath = model.getCurrentPath();
         int depth = view.getCurrentDepth();
-        List<String> contents = model.listDirectoryContents(currentPath);
-        view.setDirectoryContents(depth, contents);
-        view.setCurrentPath(currentPath);
+//        List<String> contents = model.listDirectoryContents(currentPath);
+//        view.setDirectoryContents(depth, contents);
+//        view.setCurrentPath(currentPath);
+
+        String subPath = currentPath;
+
+        for (int i = depth; i >= 0; i--) {
+            List<String> contents = model.listDirectoryContents(subPath);
+            view.setDirectoryContents(i, contents);
+            subPath = Paths.get(subPath).getParent().toString();
+        }
+        setCurrentPath(depth - 1, currentPath);
+
     }
 
     private void initController() {
         for (int i = 0; i < view.fileLists.size(); i++) {
             JList<String> list = view.getListAtIndex(i);
             addListEventListener(list, i);
+            addContextMenuListener(list, i);
         }
     }
 
@@ -147,6 +197,7 @@ public class NavigationController {
         if (listIndex + 1 >= view.fileLists.size()) {
             JList<String> list = view.addNewList();
             addListEventListener(list, listIndex + 1);
+            addContextMenuListener(list, listIndex + 1);
         }
 
         view.setDirectoryContents(listIndex + 1, contents);
