@@ -40,6 +40,8 @@ public class NavigationModel {
             System.out.println("Failed to rename file");
         }
 
+        if (!file.isDirectory()) return success;
+
         currentDirectory = newFile;
 
         System.out.println("New path: " + currentDirectory.getPath());
