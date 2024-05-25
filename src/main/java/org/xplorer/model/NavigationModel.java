@@ -55,7 +55,11 @@ public class NavigationModel {
         File file = new File(path);
         File trash = new File(System.getProperty("user.home") + File.separator + ".xplorer" + File.separator + "trash");
         if (!trash.exists()) {
-            trash.mkdirs();
+            boolean success = trash.mkdirs();
+            if (!success) {
+                System.out.println("Failed to create trash directory");
+                return false;
+            }
         }
         File newFile = new File(trash.getPath() + File.separator + file.getName());
         return file.renameTo(newFile);
