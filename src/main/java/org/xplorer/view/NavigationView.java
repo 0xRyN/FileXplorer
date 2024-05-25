@@ -5,6 +5,8 @@ import org.xplorer.util.Consts;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,16 +20,21 @@ public class NavigationView extends JPanel {
     private List<DefaultListModel<String>> listModels;
     private int currentDepth = 0;
 
+    private JPopupMenu contextMenu;
+    private JMenuItem renameItem;
+    private JMenuItem changePermissionsItem;
+    private JMenuItem deleteItem;
+
     public NavigationView() {
         setLayout(new BorderLayout());
         setBackground(Color.RED);
         initializeTopPanel();
         initializeListsPanel();
+        initializeContextMenu();
         // addDebuggingButton();
     }
 
     private void initializeTopPanel() {
-
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
 
@@ -42,7 +49,6 @@ public class NavigationView extends JPanel {
 
         this.add(topPanel, BorderLayout.NORTH);
     }
-
 
     private void initializeListsPanel() {
         fileLists = new ArrayList<>();
@@ -59,6 +65,37 @@ public class NavigationView extends JPanel {
         add(button, BorderLayout.SOUTH);
     }
 
+    private void initializeContextMenu() {
+        contextMenu = new JPopupMenu();
+        renameItem = new JMenuItem("Rename");
+        changePermissionsItem = new JMenuItem("Change Permissions");
+        deleteItem = new JMenuItem("Delete");
+
+        contextMenu.add(renameItem);
+        contextMenu.add(changePermissionsItem);
+        contextMenu.add(deleteItem);
+    }
+
+    public void setRenameActionListener(ActionListener listener) {
+        renameItem.addActionListener(listener);
+    }
+
+    public void setChangePermissionsActionListener(ActionListener listener) {
+        changePermissionsItem.addActionListener(listener);
+    }
+
+    public void setDeleteActionListener(ActionListener listener) {
+        deleteItem.addActionListener(listener);
+    }
+
+    public String showInputDialog(String message, String initialValue) {
+        return JOptionPane.showInputDialog(this, message, initialValue);
+    }
+
+    public int showConfirmDialog(String message) {
+        return JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.YES_NO_OPTION);
+    }
+
     public JList<String> addNewList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         JList<String> list = new JList<>(model);
@@ -73,10 +110,37 @@ public class NavigationView extends JPanel {
 
         listsPanel.add(panel);
 
+        // Add right-click listener to the list
+        addContextMenuToList(list);
+
         // Refresh the view
         revalidate();
         repaint();
         return list;
+    }
+
+    private void addContextMenuToList(JList<String> list) {
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
+                }
+            }
+
+            private void showContextMenu(MouseEvent e) {
+                int index = list.locationToIndex(e.getPoint());
+                list.setSelectedIndex(index);
+                contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
     }
 
     public void removeLastList() {
@@ -99,7 +163,6 @@ public class NavigationView extends JPanel {
     }
 
     public void setDirectoryContents(int index, java.util.List<String> contents) {
-
         DefaultListModel<String> model = listModels.get(index);
         model.clear();
         for (String item : contents) {

@@ -26,6 +26,7 @@ public class NavigationController {
         this.navigationFolderSelectionListener = navigationFolderSelectionListener;
         initController();
         initializeView();
+        initializeContextMenuListeners();
     }
 
     private void fireSelectionEventIfFileSelected(String path) {
@@ -68,6 +69,69 @@ public class NavigationController {
         });
     }
 
+    private void initializeContextMenuListeners() {
+        view.setRenameActionListener(e -> handleRenameAction());
+        view.setChangePermissionsActionListener(e -> handleChangePermissionsAction());
+        view.setDeleteActionListener(e -> handleDeleteAction());
+    }
+
+    private void handleRenameAction() {
+        JList<String> list = getSelectedList();
+        if (list == null || list.isSelectionEmpty()) return;
+
+        String path = model.getCurrentPath();
+        String oldName = list.getSelectedValue();
+        String newName = view.showInputDialog("Entrez le nouveau nom:", oldName);
+
+        String oldPath = Paths.get(path, oldName).toString();
+        String newPath = Paths.get(path, newName).toString();
+        if (newName != null && !newName.trim().isEmpty()) {
+            model.renameFile(oldPath, newPath);
+            refreshView();
+        }
+    }
+
+    private void handleChangePermissionsAction() {
+        JList<String> list = getSelectedList();
+        if (list == null || list.isSelectionEmpty()) return;
+
+        String fileName = list.getSelectedValue();
+        String permissions = view.showInputDialog("Entrez les permissions a ajouter (exemple -w-):", "");
+        if (permissions != null && !permissions.trim().isEmpty()) {
+            model.changePermissions(fileName, permissions);
+            refreshView();
+        }
+    }
+
+    private void handleDeleteAction() {
+        JList<String> list = getSelectedList();
+        if (list == null || list.isSelectionEmpty()) return;
+
+        String fileName = list.getSelectedValue();
+        int confirm = view.showConfirmDialog("Voulez vous vraiment supprimer " + fileName + "?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            model.deleteFile(fileName);
+            refreshView();
+        }
+    }
+
+    private JList<String> getSelectedList() {
+        for (JList<String> list : view.fileLists) {
+            if (!list.isSelectionEmpty()) {
+                return list;
+            }
+        }
+        return null;
+    }
+
+    private void refreshView() {
+        String currentPath = model.getCurrentPath();
+        int depth = view.getCurrentDepth();
+        List<String> contents = model.listDirectoryContents(currentPath);
+        view.setDirectoryContents(depth, contents);
+        view.setCurrentPath(currentPath);
+    }
+
     private void initController() {
         for (int i = 0; i < view.fileLists.size(); i++) {
             JList<String> list = view.getListAtIndex(i);
@@ -86,7 +150,6 @@ public class NavigationController {
 
         view.setDirectoryContents(listIndex + 1, contents);
         view.setCurrentPath(model.getCurrentPath());
-
     }
 
     public void initializeView() {
@@ -96,7 +159,6 @@ public class NavigationController {
             view.setDirectoryContents(0, rootContents);
         }
     }
-
 
     public void addSearchButtonListener(ActionListener listener) {
         view.addShowSearchListener(listener);
