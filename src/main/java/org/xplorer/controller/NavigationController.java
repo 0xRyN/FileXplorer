@@ -116,8 +116,9 @@ public class NavigationController {
     }
 
     private JList<String> getSelectedList() {
-        for (JList<String> list : view.fileLists) {
-            if (!list.isSelectionEmpty()) {
+        for (int i = view.fileLists.size() - 1; i >= 0; i--) {
+            JList<String> list = view.getListAtIndex(i);
+            if (list != null && !list.isSelectionEmpty()) {
                 return list;
             }
         }
